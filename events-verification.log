@@ -1,0 +1,261 @@
+18:46:53.391 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.cocacola.ApiFlowTests]: ApiFlowTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:46:53.564 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.ApiFlowTests
+18:46:53.700 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.cocacola.ApiFlowTests]: ApiFlowTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:46:53.701 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.ApiFlowTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-10-03T18:46:54.390-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.ApiFlowTests                : Starting ApiFlowTests using Java 21.0.9 with PID 14832 (started by EliteBook in C:\Proyectos Softcraft\CocaCola\cocacola\cocacola)
+2026-10-03T18:46:54.393-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.ApiFlowTests                : No active profile set, falling back to 1 default profile: "default"
+2026-10-03T18:46:55.762-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-03T18:46:55.890-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 117 ms. Found 7 JPA repository interfaces.
+2026-10-03T18:46:56.889-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-03T18:46:57.029-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-03T18:47:05.890-04:00  INFO 14832 --- [cocacola] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-03T18:47:05.937-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-03T18:47:06.136-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:cocacola user=SA
+2026-10-03T18:47:06.151-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-03T18:47:06.236-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:cocacola]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: COCACOLA/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-03T18:47:07.671-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-03T18:47:07.759-04:00  INFO 14832 --- [cocacola] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-03T18:47:07.920-04:00  INFO 14832 --- [cocacola] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-03T18:47:11.066-04:00  WARN 14832 --- [cocacola] [           main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 5c1330a4-4f3c-4109-8ab4-435d1cade848
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-03T18:47:11.081-04:00  INFO 14832 --- [cocacola] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-10-03T18:47:11.741-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.ApiFlowTests                : Started ApiFlowTests in 17.916 seconds (process running for 19.941)
+2026-10-03T18:47:11.915-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Cat�logo de productos sincronizado
+2026-10-03T18:47:12.227-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Usuarios demo creados (cambia sus contrase�as en produccion)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\CodexSandboxOffline\.m2\repository\net\bytebuddy\byte-buddy-agent\1.18.11\byte-buddy-agent-1.18.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-03T18:47:12.761-04:00  INFO 14832 --- [cocacola] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-03T18:47:12.761-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-03T18:47:12.763-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-10-03T18:47:14.195-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.BiExportTests]: BiExportTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:14.201-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.BiExportTests
+2026-10-03T18:47:14.203-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.BiExportTests]: BiExportTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:14.205-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.BiExportTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-10-03T18:47:14.259-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.BiExportTests               : Starting BiExportTests using Java 21.0.9 with PID 14832 (started by EliteBook in C:\Proyectos Softcraft\CocaCola\cocacola\cocacola)
+2026-10-03T18:47:14.259-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.BiExportTests               : No active profile set, falling back to 1 default profile: "default"
+2026-10-03T18:47:14.515-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-03T18:47:14.536-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 21 ms. Found 7 JPA repository interfaces.
+2026-10-03T18:47:14.618-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-03T18:47:14.649-04:00  INFO 14832 --- [cocacola] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-03T18:47:14.650-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-10-03T18:47:14.652-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:bi user=SA
+2026-10-03T18:47:14.652-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-10-03T18:47:14.653-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:bi]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: BI/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-03T18:47:14.751-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-03T18:47:14.763-04:00  INFO 14832 --- [cocacola] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-03T18:47:14.943-04:00  WARN 14832 --- [cocacola] [           main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 7b7e551a-b66a-4d55-a4a5-72afc8f333f4
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-03T18:47:14.943-04:00  INFO 14832 --- [cocacola] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-10-03T18:47:15.062-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.BiExportTests               : Started BiExportTests in 0.845 seconds (process running for 23.258)
+2026-10-03T18:47:15.062-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Cat�logo de productos sincronizado
+2026-10-03T18:47:15.297-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Usuarios demo creados (cambia sus contrase�as en produccion)
+2026-10-03T18:47:15.629-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DemoDataSeeder       : Datos de demostraci�n cargados: 183 participantes, 195 interacciones, 48 encuestas
+2026-10-03T18:47:15.629-04:00  INFO 14832 --- [cocacola] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-03T18:47:15.629-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-03T18:47:15.629-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-03T18:47:16.145-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.CocacolaApplicationTests]: CocacolaApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:16.148-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.CocacolaApplicationTests
+2026-10-03T18:47:16.150-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.CocacolaApplicationTests]: CocacolaApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:16.151-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.CocacolaApplicationTests
+2026-10-03T18:47:16.168-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.DemoSeedTests]: DemoSeedTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:16.169-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.DemoSeedTests
+2026-10-03T18:47:16.169-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.DemoSeedTests]: DemoSeedTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:16.170-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.DemoSeedTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-10-03T18:47:16.190-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.DemoSeedTests               : Starting DemoSeedTests using Java 21.0.9 with PID 14832 (started by EliteBook in C:\Proyectos Softcraft\CocaCola\cocacola\cocacola)
+2026-10-03T18:47:16.190-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.DemoSeedTests               : No active profile set, falling back to 1 default profile: "default"
+2026-10-03T18:47:16.340-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-03T18:47:16.361-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 28 ms. Found 7 JPA repository interfaces.
+2026-10-03T18:47:16.431-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-03T18:47:16.450-04:00  INFO 14832 --- [cocacola] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-03T18:47:16.451-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-10-03T18:47:16.454-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn20: url=jdbc:h2:mem:demo user=SA
+2026-10-03T18:47:16.454-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-10-03T18:47:16.454-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:demo]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: DEMO/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-03T18:47:16.544-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-03T18:47:16.559-04:00  INFO 14832 --- [cocacola] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-03T18:47:16.683-04:00  WARN 14832 --- [cocacola] [           main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 5307dd99-a459-41bd-851b-678a7acd6991
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-03T18:47:16.684-04:00  INFO 14832 --- [cocacola] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-10-03T18:47:16.798-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.DemoSeedTests               : Started DemoSeedTests in 0.626 seconds (process running for 24.993)
+2026-10-03T18:47:16.816-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Cat�logo de productos sincronizado
+2026-10-03T18:47:17.060-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Usuarios demo creados (cambia sus contrase�as en produccion)
+2026-10-03T18:47:17.200-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DemoDataSeeder       : Datos de demostraci�n cargados: 183 participantes, 195 interacciones, 48 encuestas
+2026-10-03T18:47:17.205-04:00  INFO 14832 --- [cocacola] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-03T18:47:17.205-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-03T18:47:17.206-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-10-03T18:47:17.364-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.EventImageTests]: EventImageTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:17.371-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.EventImageTests
+2026-10-03T18:47:17.373-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.EventImageTests]: EventImageTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:17.374-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.EventImageTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-10-03T18:47:17.394-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.EventImageTests             : Starting EventImageTests using Java 21.0.9 with PID 14832 (started by EliteBook in C:\Proyectos Softcraft\CocaCola\cocacola\cocacola)
+2026-10-03T18:47:17.394-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.EventImageTests             : No active profile set, falling back to 1 default profile: "default"
+2026-10-03T18:47:17.523-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-03T18:47:17.532-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 18 ms. Found 7 JPA repository interfaces.
+2026-10-03T18:47:18.027-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-03T18:47:18.094-04:00  INFO 14832 --- [cocacola] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-03T18:47:18.094-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-10-03T18:47:18.094-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection conn30: url=jdbc:h2:mem:images user=SA
+2026-10-03T18:47:18.094-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-10-03T18:47:18.094-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:images]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: IMAGES/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-03T18:47:18.325-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-03T18:47:18.354-04:00  INFO 14832 --- [cocacola] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-03T18:47:18.637-04:00  WARN 14832 --- [cocacola] [           main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 23e5a66e-8cac-434e-8b75-c8543a551c11
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-03T18:47:18.638-04:00  INFO 14832 --- [cocacola] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-10-03T18:47:18.884-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.EventImageTests             : Started EventImageTests in 1.505 seconds (process running for 27.079)
+2026-10-03T18:47:18.893-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Cat�logo de productos sincronizado
+2026-10-03T18:47:19.217-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Usuarios demo creados (cambia sus contrase�as en produccion)
+2026-10-03T18:47:19.233-04:00  INFO 14832 --- [cocacola] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-03T18:47:19.233-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-03T18:47:19.236-04:00  INFO 14832 --- [cocacola] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-10-03T18:47:19.621-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.ParticipantPerformanceTests]: ParticipantPerformanceTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:19.624-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.ParticipantPerformanceTests
+2026-10-03T18:47:19.625-04:00  INFO 14832 --- [cocacola] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.cocacola.ParticipantPerformanceTests]: ParticipantPerformanceTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-03T18:47:19.625-04:00  INFO 14832 --- [cocacola] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.cocacola.CocacolaApplication for test class com.cocacola.ParticipantPerformanceTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-10-03T18:47:19.666-04:00  INFO 14832 --- [cocacola] [           main] c.cocacola.ParticipantPerformanceTests   : Starting ParticipantPerformanceTests using Java 21.0.9 with PID 14832 (started by EliteBook in C:\Proyectos Softcraft\CocaCola\cocacola\cocacola)
+2026-10-03T18:47:19.666-04:00  INFO 14832 --- [cocacola] [           main] c.cocacola.ParticipantPerformanceTests   : No active profile set, falling back to 1 default profile: "default"
+2026-10-03T18:47:19.946-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-03T18:47:19.971-04:00  INFO 14832 --- [cocacola] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 25 ms. Found 7 JPA repository interfaces.
+2026-10-03T18:47:20.092-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-03T18:47:20.110-04:00  INFO 14832 --- [cocacola] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-03T18:47:20.110-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-10-03T18:47:20.125-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection conn40: url=jdbc:h2:mem:performance user=SA
+2026-10-03T18:47:20.125-04:00  INFO 14832 --- [cocacola] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2026-10-03T18:47:20.125-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:performance]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: PERFORMANCE/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-03T18:47:20.308-04:00  INFO 14832 --- [cocacola] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-03T18:47:20.323-04:00  INFO 14832 --- [cocacola] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-03T18:47:20.516-04:00  WARN 14832 --- [cocacola] [           main] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 8fcc4fcb-b7dd-4c90-a36d-5aa310ddce6c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-10-03T18:47:20.524-04:00  INFO 14832 --- [cocacola] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-10-03T18:47:20.786-04:00  INFO 14832 --- [cocacola] [           main] c.cocacola.ParticipantPerformanceTests   : Started ParticipantPerformanceTests in 1.15 seconds (process running for 28.981)
+2026-10-03T18:47:20.808-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Cat�logo de productos sincronizado
+2026-10-03T18:47:21.049-04:00  INFO 14832 --- [cocacola] [           main] com.cocacola.config.DataSeeder           : Usuarios demo creados (cambia sus contrase�as en produccion)
