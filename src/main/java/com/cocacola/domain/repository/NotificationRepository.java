@@ -15,4 +15,8 @@ public interface NotificationRepository {
     long countUnread();
 
     void markAllRead();
+
+    List<Notification> findForEvents(java.util.Set<String> eventIds, boolean unreadOnly, int limit);
+    long countUnreadForEvents(java.util.Set<String> eventIds);
+    void markReadForEvents(java.util.Set<String> eventIds);
 }

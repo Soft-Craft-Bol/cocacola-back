@@ -58,7 +58,7 @@ class BiExportTests {
 
 		// marketing (JWT) y clave de API (cabecera o parametro)
 		String marketing = token(mvc, "marketing@cocacola.com", "mkt123");
-		mvc.perform(get("/bi").header("Authorization", marketing)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(7));
+		mvc.perform(get("/bi").header("Authorization", marketing)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(8));
 		mvc.perform(get("/bi/eventos").header("X-API-Key", "test-bi-key")).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(3));
 		mvc.perform(get("/bi/productos").param("key", "test-bi-key")).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(7));
 		mvc.perform(get("/bi/tabla-inexistente").header("X-API-Key", "test-bi-key")).andExpect(status().isNotFound());

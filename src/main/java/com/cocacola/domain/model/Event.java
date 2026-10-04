@@ -27,6 +27,7 @@ public class Event {
     private Integer expected;
     private String channel;
     private List<String> productIds;
+    private List<String> experienceIds;
     private EventStatus status;
     private String imageUrl;
     private String imagePublicId;

@@ -29,26 +29,36 @@ public class ParticipantService {
     private final NotificationService notifications;
     private final CommunicationService communications;
     private final CrmService crm;
+    private final EventAccessService access;
+    private final EventOperationsService operations;
 
     public List<Participant> list(String eventId) {
         List<Participant> all = eventId == null || eventId.isBlank() ? participants.findAll() : participants.findByEventId(eventId);
-        return all.stream().sorted(Comparator.comparing(Participant::getRegisteredAt).reversed()).toList();
+        if (eventId != null && !eventId.isBlank()) access.require(eventId);
+        var scope = access.assignedEventIds();
+        return all.stream().filter(p -> scope == null || scope.contains(p.getEventId())).sorted(Comparator.comparing(Participant::getRegisteredAt).reversed()).toList();
     }
 
     public org.springframework.data.domain.Page<Participant> search(String eventId, String search, int page, int size) {
+        access.require(eventId);
         return participants.search(eventId, search, Math.max(0, page), Math.max(1, Math.min(100, size)));
     }
 
     public Participant get(String id) {
-        return participants.findById(id).orElseThrow(() -> new NotFoundException("Participante"));
+        Participant p = participants.findById(id).orElseThrow(() -> new NotFoundException("Participante"));
+        access.require(p.getEventId());
+        return p;
     }
 
     public Participant getByCode(String code) {
-        return participants.findByQrCode(code.trim().toUpperCase()).orElseThrow(() -> new NotFoundException("Código QR"));
+        Participant p = participants.findByQrCode(code.trim().toUpperCase()).orElseThrow(() -> new NotFoundException("Código QR"));
+        access.require(p.getEventId());
+        return p;
     }
 
     @Transactional
     public Participant register(Participant data) {
+        access.require(data.getEventId());
         Event event = events.findById(data.getEventId()).orElseThrow(() -> new NotFoundException("Evento"));
         String email = data.getEmail().trim().toLowerCase();
         if (participants.existsByEventIdAndEmail(event.getId(), email)) {
@@ -56,8 +66,8 @@ public class ParticipantService {
         }
         data.setId(IdGenerator.newId());
         data.setEmail(email);
-        // Recurrente: la misma persona (correo) ya participo en otro evento
-        data.setReturning(participants.existsByEmail(email));
+        // Recurrente: la misma persona (correo o celular) ya ASISTIÓ a otro evento
+        data.setReturning(hasAttendedBefore(email, data.getPhone(), event.getId()));
         data.setCampaign(event.getCampaign());
         data.setQrCode(newQrCode());
         data.setRegisteredAt(Instant.now());
@@ -88,6 +98,8 @@ public class ParticipantService {
         Participant p = get(id);
         if (p.getCheckedInAt() != null) throw new ConflictException("Este participante ya registró su ingreso");
         p.setCheckedInAt(Instant.now());
+        // Al ingresar se confirma si es recurrente: puede haber asistido a otro evento después de inscribirse
+        p.setReturning(hasAttendedBefore(p.getEmail(), p.getPhone(), p.getEventId()));
         Participant saved = participants.save(p);
         notifyAttendanceGoal(p.getEventId());
         return saved;
@@ -109,7 +121,7 @@ public class ParticipantService {
 
     /** Avisa cuando los registros llegan al 50 % y al 100 % de los participantes esperados. */
     private void notifyRegistrationGoal(Event event) {
-        int expected = event.getExpected() == null ? 0 : event.getExpected();
+        int expected = operations.settings(event.getId()).registrationGoal();
         if (expected <= 0) return;
         int registered = participants.findByEventId(event.getId()).size();
         if (registered == expected) {
@@ -124,9 +136,10 @@ public class ParticipantService {
     /** Avisa cuando la asistencia llega al 50 % y al 100 % del aforo esperado. */
     private void notifyAttendanceGoal(String eventId) {
         Event event = events.findById(eventId).orElse(null);
-        if (event == null || event.getExpected() == null || event.getExpected() <= 0) return;
+        if (event == null) return;
         long attended = participants.findByEventId(eventId).stream().filter(x -> x.getCheckedInAt() != null).count();
-        int expected = event.getExpected();
+        int expected = operations.settings(eventId).attendanceGoal();
+        if (expected <= 0) return;
         if (attended == expected) {
             notifications.notify("META_ASISTENCIA", "success", "Aforo esperado alcanzado",
                     event.getName() + ": ya ingresaron " + expected + " asistentes.", eventId);
@@ -134,6 +147,15 @@ public class ParticipantService {
             notifications.notify("META_ASISTENCIA", "info", "Mitad del aforo esperado",
                     event.getName() + ": han ingresado " + attended + " de " + expected + " asistentes esperados.", eventId);
         }
+    }
+
+    /** ¿La misma persona (por correo o por los últimos 10 dígitos del celular) asistió a otro evento? */
+    private boolean hasAttendedBefore(String email, String phone, String eventId) {
+        String digits = phone == null ? "" : phone.replaceAll("\\D", "");
+        if (digits.length() > 10) digits = digits.substring(digits.length() - 10);
+        String phoneDigits = digits.length() >= 7 ? digits : null;
+        return participants.findByContact(email, phoneDigits).stream()
+                .anyMatch(p -> p.getCheckedInAt() != null && !eventId.equals(p.getEventId()));
     }
 
     private String newQrCode() {

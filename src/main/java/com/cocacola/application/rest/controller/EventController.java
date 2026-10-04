@@ -63,6 +63,6 @@ public class EventController {
         return Event.builder().name(r.name()).type(r.type()).date(r.date()).location(r.location())
                 .organizer(r.organizer()).manager(r.manager()).description(r.description()).objective(r.objective())
                 .campaign(r.campaign()).budget(r.budget()).expected(r.expected()).channel(r.channel())
-                .productIds(r.productIds()).status(r.status()).build();
+                .productIds(r.productIds()).experienceIds(r.experienceIds()).status(r.status()).build();
     }
 }

@@ -27,4 +27,5 @@ public class ActivityEntity {
 
     @Enumerated(EnumType.STRING)
     private ActivityType type;
+    private String experienceId;
 }

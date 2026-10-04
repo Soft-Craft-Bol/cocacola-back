@@ -4,6 +4,7 @@ import com.cocacola.application.response.ErrorResponse;
 import com.cocacola.domain.helpers.ConflictException;
 import com.cocacola.domain.helpers.NotFoundException;
 import com.cocacola.domain.helpers.StorageException;
+import com.cocacola.domain.helpers.TooManyRequestsException;
 import com.cocacola.domain.helpers.UnauthorizedException;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 /** Todas las respuestas de error tienen la forma { "message": "..." }. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    ResponseEntity<ErrorResponse> forbidden(org.springframework.security.access.AccessDeniedException ex) {
+        return build(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
 
     private static final Map<String, String> FIELD_LABELS = Map.ofEntries(
             Map.entry("name", "Nombre"), Map.entry("firstName", "Nombre"), Map.entry("lastName", "Apellido"),
@@ -52,6 +58,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     ResponseEntity<ErrorResponse> wrongMethod() {
         return build(HttpStatus.METHOD_NOT_ALLOWED, "Método no permitido");
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    ResponseEntity<ErrorResponse> tooMany(TooManyRequestsException ex) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
     }
 
     @ExceptionHandler(StorageException.class)

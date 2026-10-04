@@ -22,4 +22,7 @@ public class ProductEntity {
     private String name;
 
     private String category;
+    private String flavor;
+    private String presentation;
+    private Boolean archived;
 }

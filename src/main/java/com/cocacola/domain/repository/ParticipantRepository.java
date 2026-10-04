@@ -11,6 +11,8 @@ public interface ParticipantRepository {
     List<Participant> findByEventId(String eventId);
     Optional<Participant> findById(String id);
     Optional<Participant> findByQrCode(String qrCode);
+    /** Inscripciones de una persona por correo (exacto) o por los últimos dígitos de su celular. */
+    List<Participant> findByContact(String email, String phoneDigits);
     boolean existsByEventIdAndEmail(String eventId, String email);
     boolean existsByEmail(String email);
     boolean existsByQrCode(String qrCode);

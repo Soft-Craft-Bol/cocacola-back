@@ -61,6 +61,17 @@ public class CommunicationService {
         return whatsapp.isConfigured();
     }
 
+    /** Envía un correo de prueba para comprobar las credenciales de Gmail. Devuelve el destinatario. */
+    public String sendTestEmail(String to, String defaultTo) {
+        String target = to == null || to.isBlank() ? defaultTo : to.trim();
+        if (target == null || target.isBlank()) throw new IllegalArgumentException("Indica un correo destinatario");
+        email.send(new EmailMessage(target, "Prueba de correo · Coca-Cola Eventos",
+                wrap("<p>¡Funciona! Este es un correo de prueba de la plataforma de eventos.</p>"
+                        + "<p>Desde ahora se enviarán por aquí las confirmaciones con QR, recordatorios, encuestas y notificaciones del equipo.</p>"),
+                Map.of()));
+        return target;
+    }
+
     public List<MessageLog> history(String eventId, int limit) {
         return logs.findRecentByEventId(eventId, limit);
     }
@@ -169,13 +180,15 @@ public class CommunicationService {
                 subject = "Tu registro a " + event.getName();
                 body = "<p>¡Hola " + name + "! Tu registro fue confirmado.</p>" + details(event)
                         + "<p>Presenta este código QR en la entrada:</p><p><img src=\"cid:qr\" width=\"180\" height=\"180\" alt=\"QR\"/></p>"
-                        + "<p style=\"color:#666\">Código: <b>" + p.getQrCode() + "</b></p>";
+                        + "<p style=\"color:#666\">Código: <b>" + p.getQrCode() + "</b></p>"
+                        + ticketButton(p);
                 images = Map.of("qr", QrCodes.png(p.getQrCode(), 360));
             }
             case REMINDER -> {
                 subject = "Te esperamos mañana: " + event.getName();
                 body = "<p>¡Hola " + name + "! Te recordamos tu evento.</p>" + details(event)
-                        + "<p>No olvides tu código QR:</p><p><img src=\"cid:qr\" width=\"180\" height=\"180\" alt=\"QR\"/></p>";
+                        + "<p>No olvides tu código QR:</p><p><img src=\"cid:qr\" width=\"180\" height=\"180\" alt=\"QR\"/></p>"
+                        + ticketButton(p);
                 images = Map.of("qr", QrCodes.png(p.getQrCode(), 360));
             }
             case THANKS -> {
@@ -196,7 +209,7 @@ public class CommunicationService {
     private String buildText(Participant p, Event event, Event target, MessageType type) {
         return switch (type) {
             case CONFIRMATION -> "Hola " + p.getFirstName() + ", tu registro a " + event.getName() + " fue confirmado.\n"
-                    + plainDetails(event) + "\nTu código de ingreso: " + p.getQrCode() + "\nPresentalo en la entrada.";
+                    + plainDetails(event) + "\nTu código de ingreso: " + p.getQrCode() + "\nTu entrada: " + publicUrl + "/entrada/" + p.getQrCode();
             case REMINDER -> "Hola " + p.getFirstName() + ", te recordamos " + event.getName() + ".\n" + plainDetails(event)
                     + "\nTu código de ingreso: " + p.getQrCode();
             case THANKS -> "Gracias por acompañarnos en " + event.getName() + ", " + p.getFirstName() + ". Cuéntanos tu experiencia: " + surveyUrl(p);
@@ -218,6 +231,11 @@ public class CommunicationService {
 
     private static String typeKey(MessageType type, Event target) {
         return type == MessageType.INVITATION && target != null ? "INVITATION:" + target.getId() : type.name();
+    }
+
+    /** Botón del correo para ver y descargar la entrada completa (con el diseño del evento). */
+    private String ticketButton(Participant p) {
+        return "<p><a href=\"" + publicUrl + "/entrada/" + p.getQrCode() + "\" style=\"background:#e61a27;color:#fff;padding:12px 22px;border-radius:24px;text-decoration:none\">Ver y descargar mi entrada</a></p>";
     }
 
     private String surveyUrl(Participant p) {

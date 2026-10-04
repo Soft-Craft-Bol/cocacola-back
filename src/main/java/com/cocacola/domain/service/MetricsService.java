@@ -16,6 +16,7 @@ import com.cocacola.domain.model.metrics.EvolutionPoint;
 import com.cocacola.domain.model.metrics.NamedValue;
 import com.cocacola.domain.model.metrics.OverviewMetrics;
 import com.cocacola.domain.model.metrics.ProductInterest;
+import com.cocacola.domain.model.metrics.ExperienceInterest;
 import com.cocacola.domain.repository.ActivityRepository;
 import com.cocacola.domain.repository.EventRepository;
 import com.cocacola.domain.repository.InteractionRepository;
@@ -51,25 +52,31 @@ public class MetricsService {
     private final SurveyRepository surveys;
     private final ActivityRepository activities;
     private final ProductRepository products;
+    private final EventAccessService access;
+    private final com.cocacola.persistence.crud.ExperienceRepository experiences;
 
     @Value("${app.timezone:America/Bogota}")
     private String timezone;
 
     @Transactional(readOnly = true)
     public EventMetrics forEvent(String eventId) {
+        access.require(eventId);
         Event event = events.findById(eventId).orElseThrow(() -> new NotFoundException("Evento"));
         return compute(event, participants.findByEventId(eventId), interactions.findByEventId(eventId),
-                surveys.findByEventId(eventId), activities.findByEventId(eventId), productNames());
+                surveys.findByEventId(eventId), activities.findByEventId(eventId), productNames(), productMap());
     }
 
     @Transactional(readOnly = true)
     public OverviewMetrics overview() {
-        List<Event> allEvents = events.findAll();
-        List<Participant> allParticipants = participants.findAll();
-        List<Interaction> allInteractions = interactions.findAll();
-        List<Survey> allSurveys = surveys.findAll();
-        List<Activity> allActivities = activities.findAll();
+        var scope = access.assignedEventIds();
+        List<Event> allEvents = events.findAll().stream().filter(e -> scope == null || scope.contains(e.getId())).toList();
+        Set<String> visibleIds = allEvents.stream().map(Event::getId).collect(Collectors.toSet());
+        List<Participant> allParticipants = participants.findAll().stream().filter(p -> visibleIds.contains(p.getEventId())).toList();
+        List<Interaction> allInteractions = interactions.findAll().stream().filter(i -> visibleIds.contains(i.getEventId())).toList();
+        List<Survey> allSurveys = surveys.findAll().stream().filter(s -> visibleIds.contains(s.getEventId())).toList();
+        List<Activity> allActivities = activities.findAll().stream().filter(a -> visibleIds.contains(a.getEventId())).toList();
         Map<String, String> names = productNames();
+        Map<String, Product> productMap = productMap();
 
         var partsByEvent = allParticipants.stream().collect(Collectors.groupingBy(Participant::getEventId));
         var intsByEvent = allInteractions.stream().collect(Collectors.groupingBy(Interaction::getEventId));
@@ -79,7 +86,7 @@ public class MetricsService {
                 partsByEvent.getOrDefault(e.getId(), List.of()),
                 intsByEvent.getOrDefault(e.getId(), List.of()),
                 surveysByEvent.getOrDefault(e.getId(), List.of()),
-                actsByEvent.getOrDefault(e.getId(), List.of()), names)).toList();
+                actsByEvent.getOrDefault(e.getId(), List.of()), names, productMap)).toList();
 
         int attended = sum(per, EventMetrics::attended);
         int registered = sum(per, EventMetrics::registered);
@@ -120,13 +127,15 @@ public class MetricsService {
                 List.of(new NamedValue("Con consentimiento", allParticipants.stream().filter(Participant::isConsent).count()),
                         new NamedValue("Sin consentimiento", allParticipants.stream().filter(p -> !p.isConsent()).count())),
                 List.of(new NamedValue("Nuevos", sum(per, EventMetrics::newCount)), new NamedValue("Recurrentes", returning)),
-                loyalty, productInterest, evolution);
+                loyalty, productInterest, evolution, mergeExperiences(per, attended),
+                mergeNamed(per, EventMetrics::interestByCategory), mergeNamed(per, EventMetrics::interestByFlavor),
+                mergeNamed(per, EventMetrics::interestByPresentation));
     }
 
     // ---------------------------------------------------------------- calculo por evento
 
     private EventMetrics compute(Event event, List<Participant> parts, List<Interaction> ints, List<Survey> surv,
-                                 List<Activity> acts, Map<String, String> productNames) {
+                                 List<Activity> acts, Map<String, String> productNames, Map<String, Product> productMap) {
         List<Participant> attendees = parts.stream().filter(p -> p.getCheckedInAt() != null).toList();
         Set<String> attendeeIds = attendees.stream().map(Participant::getId).collect(Collectors.toSet());
 
@@ -196,13 +205,61 @@ public class MetricsService {
                 redemptions.size(), attendees.isEmpty() ? 0 : (double) ints.size() / attendees.size(), avgStay,
                 satisfaction, byCriterion, nps(surv), surv.size(), productInterest, activityPerformance, hourly, funnel,
                 countBy(parts, Participant::getCity), countBy(parts, Participant::getAgeRange),
-                countBy(parts, Participant::getSource), countBy(parts, Participant::getCampaign));
+                countBy(parts, Participant::getSource), countBy(parts, Participant::getCampaign),
+                experienceInterest(event, acts, ints, attendeeIds),
+                interestBy(interest, productMap, Product::getCategory), interestBy(interest, productMap, Product::getFlavor),
+                interestBy(interest, productMap, Product::getPresentation));
     }
 
     // ---------------------------------------------------------------- helpers
 
+    private Map<String, Product> productMap() {
+        return products.findAll().stream().collect(Collectors.toMap(Product::getId, p -> p, (a, b) -> a));
+    }
+
+    /** Personas interesadas agrupadas por una característica del producto (categoría, sabor o presentación). */
+    private static List<NamedValue> interestBy(Map<String, Set<String>> interest, Map<String, Product> products,
+                                               Function<Product, String> dimension) {
+        Map<String, Set<String>> grouped = new LinkedHashMap<>();
+        interest.forEach((productId, people) -> {
+            Product p = products.get(productId);
+            String key = p == null ? null : dimension.apply(p);
+            grouped.computeIfAbsent(key == null || key.isBlank() ? "Sin dato" : key, k -> new HashSet<>()).addAll(people);
+        });
+        return grouped.entrySet().stream().map(e -> new NamedValue(e.getKey(), e.getValue().size()))
+                .sorted(Comparator.comparingLong(NamedValue::value).reversed()).toList();
+    }
+
+    private static List<NamedValue> mergeNamed(List<EventMetrics> per, Function<EventMetrics, List<NamedValue>> pick) {
+        Map<String, Long> sum = new LinkedHashMap<>();
+        per.forEach(m -> pick.apply(m).forEach(nv -> sum.merge(nv.name(), nv.value(), Long::sum)));
+        return sum.entrySet().stream().map(e -> new NamedValue(e.getKey(), e.getValue()))
+                .sorted(Comparator.comparingLong(NamedValue::value).reversed()).toList();
+    }
+
     private Map<String, String> productNames() {
-        return products.findAll().stream().collect(Collectors.toMap(Product::getId, Product::getName, (a, b) -> a));
+        return products.findAll().stream().collect(Collectors.toMap(Product::getId, Product::displayName, (a, b) -> a));
+    }
+
+    private List<ExperienceInterest> experienceInterest(Event event, List<Activity> acts, List<Interaction> ints, Set<String> attendees) {
+        Map<String, String> byActivity = new HashMap<>();
+        acts.stream().filter(a -> a.getExperienceId() != null).forEach(a -> byActivity.put(a.getId(), a.getExperienceId()));
+        Map<String, Set<String>> people = new HashMap<>();
+        if (event.getExperienceIds() != null) event.getExperienceIds().forEach(id -> people.put(id, new HashSet<>()));
+        ints.stream().filter(i -> attendees.contains(i.getParticipantId()) && byActivity.containsKey(i.getActivityId()))
+                .forEach(i -> people.computeIfAbsent(byActivity.get(i.getActivityId()), k -> new HashSet<>()).add(i.getParticipantId()));
+        var names = experiences.findAll().stream().collect(Collectors.toMap(e -> e.getId(), e -> e.getName()));
+        return people.entrySet().stream().map(e -> new ExperienceInterest(e.getKey(), names.getOrDefault(e.getKey(), e.getKey()),
+                e.getValue().size(), pct(e.getValue().size(), attendees.size())))
+                .sorted(Comparator.comparingLong(ExperienceInterest::value).reversed()).toList();
+    }
+
+    private List<ExperienceInterest> mergeExperiences(List<EventMetrics> per, int attended) {
+        Map<String, ExperienceInterest> merged = new HashMap<>();
+        per.stream().flatMap(m -> m.experienceInterest().stream()).forEach(e -> merged.merge(e.experienceId(), e,
+                (a, b) -> new ExperienceInterest(a.experienceId(), a.name(), a.value() + b.value(), 0)));
+        return merged.values().stream().map(e -> new ExperienceInterest(e.experienceId(), e.name(), e.value(), pct(e.value(), attended)))
+                .sorted(Comparator.comparingLong(ExperienceInterest::value).reversed()).toList();
     }
 
     private static List<Interaction> ofType(List<Interaction> list, InteractionType type) {

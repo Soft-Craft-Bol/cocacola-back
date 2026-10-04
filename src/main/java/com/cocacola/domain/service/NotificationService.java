@@ -16,32 +16,42 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
 
     private final NotificationRepository notifications;
+    private final NotificationMailer mailer;
+    private final EventAccessService access;
 
     /** Crea un aviso. Nunca debe romper la operación que lo origina. */
     public void notify(String type, String severity, String title, String message, String eventId) {
         try {
-            notifications.save(Notification.builder().id(IdGenerator.newId()).type(type).severity(severity)
+            Notification saved = notifications.save(Notification.builder().id(IdGenerator.newId()).type(type).severity(severity)
                     .title(title).message(message).eventId(eventId).createdAt(Instant.now()).read(false).build());
+            mailer.send(saved);
         } catch (RuntimeException ex) {
             log.warn("No se pudo crear la notificación '{}': {}", title, ex.getMessage());
         }
     }
 
     public List<Notification> list(boolean unreadOnly, int limit) {
+        var ids = access.assignedEventIds();
+        if (ids != null) return notifications.findForEvents(ids, unreadOnly, limit);
         return notifications.findRecent(unreadOnly, limit);
     }
 
     public long unread() {
+        var ids = access.assignedEventIds();
+        if (ids != null) return notifications.countUnreadForEvents(ids);
         return notifications.countUnread();
     }
 
     public void markRead(String id) {
         Notification n = notifications.findById(id).orElseThrow(() -> new NotFoundException("Notificación"));
+        access.require(n.getEventId());
         n.setRead(true);
         notifications.save(n);
     }
 
     public void markAllRead() {
+        var ids = access.assignedEventIds();
+        if (ids != null) { notifications.markReadForEvents(ids); return; }
         notifications.markAllRead();
     }
 }

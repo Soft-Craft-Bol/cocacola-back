@@ -2,6 +2,7 @@ package com.cocacola.persistence.crud;
 
 import com.cocacola.domain.model.Participant;
 import com.cocacola.domain.repository.ParticipantRepository;
+import com.cocacola.persistence.entity.ParticipantEntity;
 import com.cocacola.persistence.mapper.ParticipantMapper;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,14 @@ public class ParticipantRepositoryImpl implements ParticipantRepository {
     @Override
     public Optional<Participant> findByQrCode(String qrCode) {
         return crud.findByQrCode(qrCode).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Participant> findByContact(String email, String phoneDigits) {
+        java.util.Map<String, ParticipantEntity> found = new java.util.LinkedHashMap<>();
+        if (email != null && !email.isBlank()) crud.findByEmailIgnoreCase(email.trim()).forEach(p -> found.put(p.getId(), p));
+        if (phoneDigits != null && !phoneDigits.isBlank()) crud.findByPhoneDigits(phoneDigits).forEach(p -> found.put(p.getId(), p));
+        return found.values().stream().map(mapper::toDomain).toList();
     }
 
     @Override

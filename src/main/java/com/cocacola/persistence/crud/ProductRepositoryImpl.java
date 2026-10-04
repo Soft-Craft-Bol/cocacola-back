@@ -18,6 +18,9 @@ public class ProductRepositoryImpl implements ProductRepository {
     private final ProductMapper mapper;
 
     @Override
+    public Optional<Product> findById(String id) { return crud.findById(id).map(mapper::toDomain); }
+
+    @Override
     public List<Product> findAll() {
         return crud.findAll().stream().map(mapper::toDomain).toList();
     }

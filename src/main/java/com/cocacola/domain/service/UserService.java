@@ -16,6 +16,7 @@ public class UserService {
 
     private final UserRepository users;
     private final PasswordEncoder encoder;
+    private final com.cocacola.persistence.crud.EventOperationsRepository operations;
 
     public List<User> list() {
         return users.findAll();
@@ -51,6 +52,9 @@ public class UserService {
     }
 
     public void delete(String id) {
+        if (operations.existsByOrganizerUserIdOrManagerUserId(id, id)) {
+            throw new ConflictException("Reasigna los eventos de este usuario antes de eliminarlo");
+        }
         users.deleteById(id);
     }
 }

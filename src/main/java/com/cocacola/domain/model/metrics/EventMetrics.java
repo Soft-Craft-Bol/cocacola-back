@@ -33,5 +33,9 @@ public record EventMetrics(
         List<NamedValue> byCity,
         List<NamedValue> byAge,
         List<NamedValue> bySource,
-        List<NamedValue> byCampaign) {
+        List<NamedValue> byCampaign,
+        List<ExperienceInterest> experienceInterest,
+        List<NamedValue> interestByCategory,
+        List<NamedValue> interestByFlavor,
+        List<NamedValue> interestByPresentation) {
 }

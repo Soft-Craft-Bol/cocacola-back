@@ -56,6 +56,12 @@ public class EventEntity {
     @Column(name = "product_id")
     private List<String> productIds;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
+    @CollectionTable(name = "event_experiences", joinColumns = @JoinColumn(name = "event_id"))
+    @Column(name = "experience_id")
+    private List<String> experienceIds;
+
     @Enumerated(EnumType.STRING)
     private EventStatus status;
 

@@ -36,28 +36,43 @@ public class EventService {
     private final InteractionRepository interactions;
     private final SurveyRepository surveys;
     private final ImageStorage images;
+    private final EventAccessService access;
+    private final com.cocacola.persistence.crud.EventOperationsRepository operations;
+    private final com.cocacola.persistence.crud.EventNoteRepository notes;
+    private final com.cocacola.domain.repository.ProductRepository products;
+    private final com.cocacola.persistence.crud.ExperienceRepository experiences;
 
     public List<Event> list() {
-        return events.findAll().stream().sorted(Comparator.comparing(Event::getDate).reversed()).toList();
+        var scope = access.assignedEventIds();
+        return events.findAll().stream().filter(e -> scope == null || scope.contains(e.getId())).sorted(Comparator.comparing(Event::getDate).reversed()).toList();
     }
 
     public Event get(String id) {
+        access.require(id);
         return events.findById(id).orElseThrow(() -> new NotFoundException("Evento"));
     }
 
     public Event create(Event data) {
         data.setId(IdGenerator.newId());
         normalize(data);
+        validateCatalog(data, null);
         return events.save(data);
     }
 
     public Event update(String id, Event data) {
         Event current = get(id);
+        // Los clientes anteriores no enviaban experiencias: conservarlas al editar.
+        if (data.getExperienceIds() == null) data.setExperienceIds(current.getExperienceIds());
         data.setId(id);
         // La imagen se administra solo con sus endpoints: se conserva al editar los datos
         data.setImageUrl(current.getImageUrl());
         data.setImagePublicId(current.getImagePublicId());
+        if (operations.existsById(id)) {
+            data.setOrganizer(current.getOrganizer());
+            data.setManager(current.getManager());
+        }
         normalize(data);
+        validateCatalog(data, current);
         return events.save(data);
     }
 
@@ -92,6 +107,8 @@ public class EventService {
 
     @Transactional
     public void delete(String id) {
+        notes.deleteByEventId(id);
+        operations.deleteById(id);
         String imageId = events.findById(id).map(Event::getImagePublicId).orElse(null);
         interactions.deleteByEventId(id);
         surveys.deleteByEventId(id);
@@ -126,7 +143,29 @@ public class EventService {
     private void normalize(Event e) {
         if (e.getStatus() == null) e.setStatus(EventStatus.PLANNED);
         if (e.getProductIds() == null) e.setProductIds(new ArrayList<>());
+        if (e.getExperienceIds() == null) e.setExperienceIds(new ArrayList<>());
         if (e.getBudget() == null) e.setBudget(0L);
         if (e.getExpected() == null) e.setExpected(0);
+    }
+
+    private void validateCatalog(Event data, Event previous) {
+        data.setProductIds(data.getProductIds().stream().distinct().toList());
+        data.setExperienceIds(data.getExperienceIds().stream().distinct().toList());
+        for (String id : data.getProductIds()) {
+            if (id == null || id.isBlank()) throw new IllegalArgumentException("Producto inválido");
+            var product = products.findById(id).orElseThrow(() -> new IllegalArgumentException("El producto seleccionado no existe"));
+            if (Boolean.TRUE.equals(product.getArchived()) && (previous == null || previous.getProductIds() == null || !previous.getProductIds().contains(id)))
+                throw new IllegalArgumentException("No puedes agregar productos archivados a un evento");
+        }
+        for (String id : data.getExperienceIds()) {
+            if (id == null || id.isBlank()) throw new IllegalArgumentException("Experiencia inválida");
+            var experience = experiences.findById(id).orElseThrow(() -> new IllegalArgumentException("La experiencia seleccionada no existe"));
+            if (Boolean.TRUE.equals(experience.getArchived()) && (previous == null || previous.getExperienceIds() == null || !previous.getExperienceIds().contains(id)))
+                throw new IllegalArgumentException("No puedes agregar experiencias archivadas a un evento");
+        }
+        if (previous != null) {
+            boolean inUse = activities.findByEventId(previous.getId()).stream().anyMatch(a -> a.getExperienceId() != null && !data.getExperienceIds().contains(a.getExperienceId()));
+            if (inUse) throw new IllegalArgumentException("No puedes quitar una experiencia que tiene actividades vinculadas");
+        }
     }
 }

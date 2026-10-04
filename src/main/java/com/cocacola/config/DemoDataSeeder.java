@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -90,6 +91,9 @@ public class DemoDataSeeder implements ApplicationRunner {
                         "Centro Comercial Paseo Aranjuez", "Oscar Organizador", "Mónica Marketing",
                         "Activación en punto de venta con cupones de descuento.", "Canjear 40 cupones",
                         "Sabores del barrio", 12_000_000L, 60, "Distribuidor", List.of("p1", "p4", "p5"), EventStatus.ACTIVE));
+        Map<String, List<String>> eventExperiences = Map.of("e1", List.of("x1", "x2", "x3", "x4"),
+                "e2", List.of("x5", "x6", "x4"), "e3", List.of("x1", "x7", "x4"));
+        demoEvents.forEach(e -> e.setExperienceIds(eventExperiences.get(e.getId())));
         demoEvents.forEach(events::save);
 
         List<Activity> demoActivities = List.of(
@@ -98,6 +102,9 @@ public class DemoDataSeeder implements ApplicationRunner {
                 act("a5", "e2", "Estación de hidratación", ActivityType.TASTING), act("a6", "e2", "Reto 5K", ActivityType.CONTEST),
                 act("a7", "e2", "Canje de beneficio", ActivityType.REDEEM), act("a8", "e3", "Mesa de muestras", ActivityType.TASTING),
                 act("a9", "e3", "Ruleta de premios", ActivityType.CONTEST), act("a10", "e3", "Canje de cupón", ActivityType.REDEEM));
+        Map<String, String> activityExperience = Map.of("a1", "x1", "a2", "x2", "a3", "x3", "a4", "x4", "a5", "x5",
+                "a6", "x6", "a7", "x4", "a8", "x1", "a9", "x7", "a10", "x4");
+        demoActivities.forEach(a -> a.setExperienceId(activityExperience.get(a.getId())));
         demoActivities.forEach(activities::save);
 
         List<Person> people = IntStream.range(0, 110).mapToObj(i -> {
@@ -123,6 +130,7 @@ public class DemoDataSeeder implements ApplicationRunner {
             Collections.shuffle(chosen, rnd);
             chosen = chosen.subList(0, sizes[e]);
 
+            Set<String> attendedNow = new HashSet<>();
             for (Person person : chosen) {
                 counter++;
                 String id = "dp" + counter;
@@ -144,9 +152,10 @@ public class DemoDataSeeder implements ApplicationRunner {
                         .build());
 
                 if (!attended) continue;
+                attendedNow.add(person.email());
                 for (Activity act : evActs) {
                     Interaction base = Interaction.builder().eventId(ev.getId()).participantId(id).activityId(act.getId())
-                            .at(arrival.plus(rnd.nextInt(90), ChronoUnit.MINUTES)).build();
+                               .at(arrival.plus(rnd.nextInt(90), ChronoUnit.MINUTES)).build();
                     if (act.getType() == ActivityType.TASTING && rnd.nextDouble() < 0.6) {
                         allInteractions.add(copy(base, InteractionType.TASTING, pick(rnd, ev.getProductIds()),
                                 2 + rnd.nextInt(4), rnd.nextDouble() < 0.7, consent));
@@ -163,7 +172,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                             .nps(Math.min(10, 5 + rnd.nextInt(6))).createdAt(arrival.plus(90, ChronoUnit.MINUTES)).build());
                 }
             }
-            chosen.forEach(p -> seenEmails.add(p.email()));
+            seenEmails.addAll(attendedNow);   // recurrente = ya asistió a un evento anterior
         }
 
         participants.saveAll(allParticipants);
@@ -189,8 +198,26 @@ public class DemoDataSeeder implements ApplicationRunner {
                 events.save(e);
             });
         }
+        linkLegacyExperiences();
         renameActivity("a8", "Mesa de sampling", "Mesa de muestras");
         renameActivity("a2", "Photocall Coca-Cola", "Cabina de fotos Coca-Cola");
+    }
+
+    /** Eventos y actividades demo cargados antes del catálogo de experiencias: se vinculan si aún no tienen ninguna. */
+    private void linkLegacyExperiences() {
+        Map<String, List<String>> eventExperiences = Map.of("e1", List.of("x1", "x2", "x3", "x4"),
+                "e2", List.of("x5", "x6", "x4"), "e3", List.of("x1", "x7", "x4"));
+        eventExperiences.forEach((id, list) -> events.findById(id).filter(e -> e.getExperienceIds() == null || e.getExperienceIds().isEmpty())
+                .ifPresent(e -> {
+                    e.setExperienceIds(list);
+                    events.save(e);
+                }));
+        Map<String, String> activityExperience = Map.of("a1", "x1", "a2", "x2", "a3", "x3", "a4", "x4", "a5", "x5",
+                "a6", "x6", "a7", "x4", "a8", "x1", "a9", "x7", "a10", "x4");
+        activityExperience.forEach((id, exp) -> activities.findById(id).filter(a -> a.getExperienceId() == null).ifPresent(a -> {
+            a.setExperienceId(exp);
+            activities.save(a);
+        }));
     }
 
     private void renameActivity(String id, String oldName, String newName) {

@@ -1,6 +1,5 @@
 package com.cocacola.utils;
 
-import com.cocacola.domain.repository.TextGenerator;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,7 +18,7 @@ import tools.jackson.databind.json.JsonMapper;
 /** Adaptador de TextGenerator sobre la API de Claude (Messages). Se activa con ai.anthropic.api-key. */
 @Slf4j
 @Component
-public class AnthropicTextGenerator implements TextGenerator {
+public class AnthropicTextGenerator implements AiProvider {
 
     private static final String URL = "https://api.anthropic.com/v1/messages";
 

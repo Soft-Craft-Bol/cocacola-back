@@ -362,7 +362,7 @@ public class InsightsService {
             Optional<String> generated = ai.generate(SYSTEM_PROMPT, prompt);
             if (generated.isPresent()) {
                 aiText = generated.get();
-                source = "claude";
+                source = "ia";
             }
         }
         return new InsightSummary(global ? null : eventId, title, text, recs, aiText, source);

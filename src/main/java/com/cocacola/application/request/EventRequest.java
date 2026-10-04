@@ -20,5 +20,6 @@ public record EventRequest(
         Integer expected,
         String channel,
         List<String> productIds,
-        EventStatus status) {
+        EventStatus status,
+        List<String> experienceIds) {
 }

@@ -25,7 +25,7 @@ public class ActivityController {
     @PostMapping
     public ActivityResponse create(@Valid @RequestBody ActivityRequest r) {
         return ActivityResponse.from(activities.create(
-                Activity.builder().eventId(r.eventId()).name(r.name()).type(r.type()).build()));
+                Activity.builder().eventId(r.eventId()).name(r.name()).type(r.type()).experienceId(r.experienceId()).build()));
     }
 
     @DeleteMapping("/{id}")

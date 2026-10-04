@@ -18,4 +18,14 @@ public class ProductController {
     public List<ProductResponse> list() {
         return products.list().stream().map(ProductResponse::from).toList();
     }
+
+    @PostMapping
+    public ProductResponse create(@Valid @RequestBody com.cocacola.application.request.ProductRequest r) {
+        return ProductResponse.from(products.save(null, r));
+    }
+
+    @PutMapping("/{id}")
+    public ProductResponse update(@PathVariable String id, @Valid @RequestBody com.cocacola.application.request.ProductRequest r) {
+        return ProductResponse.from(products.save(id, r));
+    }
 }

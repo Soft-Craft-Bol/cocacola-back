@@ -44,4 +44,16 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     public void markAllRead() {
         crud.markAllRead();
     }
+
+    public List<Notification> findForEvents(java.util.Set<String> ids, boolean unreadOnly, int limit) {
+        if (ids.isEmpty()) return List.of();
+        return crud.findForEvents(ids, unreadOnly, PageRequest.of(0, Math.max(1, Math.min(limit, 100))))
+                .stream().map(mapper::toDomain).toList();
+    }
+    public long countUnreadForEvents(java.util.Set<String> ids) {
+        return ids.isEmpty() ? 0 : crud.countByReadFalseAndEventIdIn(ids);
+    }
+    public void markReadForEvents(java.util.Set<String> ids) {
+        if (!ids.isEmpty()) crud.markReadForEvents(ids);
+    }
 }

@@ -63,11 +63,13 @@ public class BiExportService {
             new TableInfo("eventos", "Dimensión: un registro por evento", List.of(
                     text("evento_id"), text("nombre"), text("tipo"), date("fecha"), text("lugar"), text("organizador"),
                     text("responsable"), text("campana"), number("presupuesto"), integer("esperados"), text("canal"),
-                    text("estado"), text("productos_destacados"))),
+                    text("estado"), text("productos_destacados"), text("experiencias_destacadas"))),
             new TableInfo("productos", "Dimensión: catálogo de productos", List.of(
-                    text("producto_id"), text("producto"), text("categoria"))),
+                    text("producto_id"), text("producto"), text("categoria"), text("sabor"), text("presentacion"), text("archivado"))),
+            new TableInfo("experiencias", "Dimensión: catálogo de experiencias destacadas", List.of(
+                    text("experiencia_id"), text("experiencia"), text("categoria"), text("descripcion"), text("archivada"))),
             new TableInfo("actividades", "Dimensión: actividades de cada evento", List.of(
-                    text("actividad_id"), text("evento_id"), text("actividad"), text("tipo_actividad"))),
+                    text("actividad_id"), text("evento_id"), text("actividad"), text("tipo_actividad"), text("experiencia_id"), text("experiencia"))),
             new TableInfo("participantes", "Dimensión: un registro por inscripción (sin datos personales)", List.of(
                     text("participante_id"), text("evento_id"), text("persona_id"), text("ciudad"), text("rango_edad"),
                     text("tipo_participante"), text("consentimiento"), text("fuente_registro"), text("campana"),
@@ -76,7 +78,8 @@ public class BiExportService {
             new TableInfo("interacciones", "Hechos: participaciones, degustaciones, canjes y conversiones", List.of(
                     text("interaccion_id"), text("evento_id"), text("participante_id"), text("actividad_id"),
                     text("actividad"), text("tipo"), text("producto_id"), text("producto"), integer("calificacion"),
-                    text("compraria"), text("quiere_promociones"), dateTime("fecha_hora"), date("fecha"), integer("hora"))),
+                    text("compraria"), text("quiere_promociones"), dateTime("fecha_hora"), date("fecha"), integer("hora"),
+                    text("categoria"), text("sabor"), text("presentacion"))),
             new TableInfo("encuestas", "Hechos: satisfacción (1 a 5) y NPS (0 a 10)", List.of(
                     text("encuesta_id"), text("evento_id"), text("participante_id"), integer("organizacion"),
                     integer("atencion"), integer("experiencias"), integer("productos"), integer("general"),
@@ -93,6 +96,7 @@ public class BiExportService {
     private final SurveyRepository surveys;
     private final ActivityRepository activities;
     private final ProductRepository products;
+    private final com.cocacola.persistence.crud.ExperienceRepository experiences;
     private final MetricsService metrics;
 
     @Value("${app.timezone:America/Bogota}")
@@ -112,6 +116,7 @@ public class BiExportService {
         return switch (table(name).name()) {
             case "eventos" -> eventos();
             case "productos" -> productos();
+            case "experiencias" -> experiencias();
             case "actividades" -> actividades();
             case "participantes" -> participantes();
             case "interacciones" -> interacciones();
@@ -124,23 +129,35 @@ public class BiExportService {
 
     private List<Map<String, Object>> eventos() {
         Map<String, String> names = productNames();
+        Map<String, String> expNames = experienceNames();
         return events.findAll().stream().map(e -> row(
                 "evento_id", e.getId(), "nombre", e.getName(), "tipo", e.getType(), "fecha", day(e.getDate()),
                 "lugar", e.getLocation(), "organizador", e.getOrganizer(), "responsable", e.getManager(),
                 "campana", e.getCampaign(), "presupuesto", e.getBudget(), "esperados", e.getExpected(),
                 "canal", e.getChannel(), "estado", status(e),
                 "productos_destacados", e.getProductIds() == null ? "" : e.getProductIds().stream()
-                        .map(id -> names.getOrDefault(id, id)).collect(Collectors.joining(", ")))).toList();
+                        .map(id -> names.getOrDefault(id, id)).collect(Collectors.joining(", ")),
+                "experiencias_destacadas", e.getExperienceIds() == null ? "" : e.getExperienceIds().stream()
+                        .map(id -> expNames.getOrDefault(id, id)).collect(Collectors.joining(", ")))).toList();
+    }
+
+    private List<Map<String, Object>> experiencias() {
+        return experiences.findAll().stream().sorted(java.util.Comparator.comparing(e -> e.getName() == null ? "" : e.getName()))
+                .map(e -> row("experiencia_id", e.getId(), "experiencia", e.getName(), "categoria", e.getCategory(),
+                        "descripcion", e.getDescription(), "archivada", yesNo(e.getArchived()))).toList();
     }
 
     private List<Map<String, Object>> productos() {
         return products.findAll().stream()
-                .map(p -> row("producto_id", p.getId(), "producto", p.getName(), "categoria", p.getCategory())).toList();
+                .map(p -> row("producto_id", p.getId(), "producto", p.displayName(), "categoria", p.getCategory(),
+                        "sabor", p.getFlavor(), "presentacion", p.getPresentation(), "archivado", yesNo(p.getArchived()))).toList();
     }
 
     private List<Map<String, Object>> actividades() {
+        Map<String, String> expNames = experienceNames();
         return activities.findAll().stream().map(a -> row("actividad_id", a.getId(), "evento_id", a.getEventId(),
-                "actividad", a.getName(), "tipo_actividad", activityType(a))).toList();
+                "actividad", a.getName(), "tipo_actividad", activityType(a), "experiencia_id", a.getExperienceId(),
+                "experiencia", a.getExperienceId() == null ? "" : expNames.getOrDefault(a.getExperienceId(), a.getExperienceId()))).toList();
     }
 
     private List<Map<String, Object>> participantes() {
@@ -169,6 +186,7 @@ public class BiExportService {
     private List<Map<String, Object>> interacciones() {
         Map<String, String> names = productNames();
         Map<String, String> acts = activities.findAll().stream().collect(Collectors.toMap(Activity::getId, Activity::getName, (a, b) -> a));
+        Map<String, Product> productMap = products.findAll().stream().collect(Collectors.toMap(Product::getId, p -> p, (a, b) -> a));
         ZoneId zone = ZoneId.of(timezone);
         return interactions.findAll().stream().map(i -> row(
                 "interaccion_id", i.getId(), "evento_id", i.getEventId(), "participante_id", i.getParticipantId(),
@@ -177,7 +195,10 @@ public class BiExportService {
                 "producto", i.getProductId() == null ? "" : names.getOrDefault(i.getProductId(), i.getProductId()),
                 "calificacion", i.getRating(), "compraria", yesNo(i.getWouldBuy()), "quiere_promociones", yesNo(i.getWantsPromos()),
                 "fecha_hora", stamp(i.getAt()), "fecha", day(i.getAt()),
-                "hora", i.getAt() == null ? null : i.getAt().atZone(zone).getHour())).toList();
+                "hora", i.getAt() == null ? null : i.getAt().atZone(zone).getHour(),
+                "categoria", dim(productMap.get(i.getProductId()), Product::getCategory),
+                "sabor", dim(productMap.get(i.getProductId()), Product::getFlavor),
+                "presentacion", dim(productMap.get(i.getProductId()), Product::getPresentation))).toList();
     }
 
     private List<Map<String, Object>> encuestas() {
@@ -218,7 +239,15 @@ public class BiExportService {
     }
 
     private Map<String, String> productNames() {
-        return products.findAll().stream().collect(Collectors.toMap(Product::getId, Product::getName, (a, b) -> a));
+        return products.findAll().stream().collect(Collectors.toMap(Product::getId, Product::displayName, (a, b) -> a));
+    }
+
+    private Map<String, String> experienceNames() {
+        return experiences.findAll().stream().collect(Collectors.toMap(e -> e.getId(), e -> e.getName(), (a, b) -> a));
+    }
+
+    private static String dim(Product p, java.util.function.Function<Product, String> f) {
+        return p == null || f.apply(p) == null ? "" : f.apply(p);
     }
 
     private String stamp(Instant t) {

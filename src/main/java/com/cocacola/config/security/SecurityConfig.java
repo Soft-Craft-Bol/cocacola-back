@@ -50,7 +50,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Publico: login y registro de asistentes desde el QR del evento
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/events/*", "/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/events/*", "/products", "/experiences").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products", "/experiences").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/products/*", "/experiences/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/participants").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         // Inteligencia y comunicaciones: datos de participantes, solo admin y marketing

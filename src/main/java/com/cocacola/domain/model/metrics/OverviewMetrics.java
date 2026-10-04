@@ -26,5 +26,9 @@ public record OverviewMetrics(
         List<NamedValue> newVsReturning,
         List<NamedValue> loyalty,
         List<ProductInterest> productInterest,
-        List<EvolutionPoint> evolution) {
+        List<EvolutionPoint> evolution,
+        List<ExperienceInterest> experienceInterest,
+        List<NamedValue> interestByCategory,
+        List<NamedValue> interestByFlavor,
+        List<NamedValue> interestByPresentation) {
 }

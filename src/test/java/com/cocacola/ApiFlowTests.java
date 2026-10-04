@@ -141,7 +141,7 @@ class ApiFlowTests {
 				.andExpect(jsonPath("$.consents").value(1))
 				.andExpect(jsonPath("$.satisfaction").value(4.6))
 				.andExpect(jsonPath("$.nps").value(100.0))
-				.andExpect(jsonPath("$.productInterest[0].name").value("Coca-Cola Original"))
+				.andExpect(jsonPath("$.productInterest[0].name").value("Coca-Cola · Original · Lata 330 ml"))
 				.andExpect(jsonPath("$.funnel.length()").value(6));
 
 		mvc.perform(get("/metrics/overview").header("Authorization", auth))

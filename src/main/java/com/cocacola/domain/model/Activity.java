@@ -15,4 +15,5 @@ public class Activity {
     private String eventId;
     private String name;
     private ActivityType type;
+    private String experienceId;
 }

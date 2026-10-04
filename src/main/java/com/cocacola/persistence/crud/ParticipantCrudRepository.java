@@ -21,6 +21,15 @@ public interface ParticipantCrudRepository extends JpaRepository<ParticipantEnti
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = "preferences")
     List<ParticipantEntity> findByIdIn(List<String> ids);
 
+    List<ParticipantEntity> findByEmailIgnoreCase(String email);
+
+    @org.springframework.data.jpa.repository.Query("""
+        select p from ParticipantEntity p
+        where replace(replace(replace(replace(replace(coalesce(p.phone, ''), ' ', ''), '-', ''), '+', ''), '(', ''), ')', '')
+          like concat('%', :digits)
+        """)
+    List<ParticipantEntity> findByPhoneDigits(@org.springframework.data.repository.query.Param("digits") String digits);
+
     List<ParticipantEntity> findByEventId(String eventId);
     Optional<ParticipantEntity> findByQrCode(String qrCode);
     boolean existsByEventIdAndEmail(String eventId, String email);
