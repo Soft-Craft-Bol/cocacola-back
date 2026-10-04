@@ -27,6 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 		"spring.datasource.password=",
 		"spring.datasource.driver-class-name=org.h2.Driver",
 		"spring.jpa.hibernate.ddl-auto=create-drop",
+		"ai.openai.api-key=",
 		"app.seed.demo=true"
 })
 class InsightsTests {

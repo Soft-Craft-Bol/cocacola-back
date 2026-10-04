@@ -55,7 +55,7 @@ public class DataSeeder implements ApplicationRunner {
                 new Seed("p4", "Sprite", "Lima-limón", "Lima-limón", "Botella 500 ml"),
                 new Seed("p5", "Fanta", "Frutas", "Naranja", "Botella 500 ml"),
                 new Seed("p6", "Powerade", "Isotónicos", "Mora azul", "Botella 600 ml"),
-                new Seed("p7", "Dasani", "Agua", "Natural", "Botella 600 ml"))) {
+                new Seed("p7", "Vital", "Agua", "Natural", "Botella 600 ml"))) {
             var existing = products.findById(seed.id());
             boolean legacy = existing.isPresent() && isBlank(existing.get().getFlavor()) && isBlank(existing.get().getPresentation());
             if (existing.isEmpty() || legacy) {
@@ -69,6 +69,11 @@ public class DataSeeder implements ApplicationRunner {
                 products.save(p);
             }
         }
+        // Instalaciones anteriores: el agua del catálogo era Dasani, que no se vende en Bolivia
+        products.findById("p7").filter(p -> "Dasani".equals(p.getName())).ifPresent(p -> {
+            p.setName("Vital");
+            products.save(p);
+        });
         log.info("Catálogo de productos sincronizado");
     }
 

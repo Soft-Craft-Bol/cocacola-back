@@ -35,7 +35,7 @@ public class CrmService {
     private final ProductRepository products;
     private final CrmGateway crm;
 
-    @Value("${app.timezone:America/Bogota}")
+    @Value("${app.timezone:America/La_Paz}")
     private String timezone;
 
     public boolean configured() {

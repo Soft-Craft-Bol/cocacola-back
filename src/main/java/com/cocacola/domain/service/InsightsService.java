@@ -11,6 +11,7 @@ import com.cocacola.domain.model.insights.Insights.AffinityReport;
 import com.cocacola.domain.model.insights.Insights.AffinityScore;
 import com.cocacola.domain.model.insights.Insights.AttendanceForecast;
 import com.cocacola.domain.model.insights.Insights.InsightSummary;
+import com.cocacola.domain.model.insights.Insights.PredictionAnalysis;
 import com.cocacola.domain.model.insights.Insights.Recommendation;
 import com.cocacola.domain.model.insights.Insights.Segment;
 import com.cocacola.domain.model.insights.Insights.SegmentMember;
@@ -51,6 +52,12 @@ public class InsightsService {
             + "redacta en español un resumen ejecutivo claro (máximo 160 palabras) del evento y termina con tres "
             + "acciones concretas para la próxima activación. No inventes cifras que no estén en los datos.";
 
+    private static final String PREDICTION_PROMPT = "Eres analista de datos de marketing de Coca-Cola. Recibes predicciones calculadas "
+            + "por el sistema (asistencia esperada por evento y afinidad de los participantes para volver). Interprétalas en español "
+            + "en máximo 170 palabras: qué significan, qué riesgos u oportunidades ves y tres acciones concretas para mejorar la "
+            + "asistencia y la recompra. Usa solo las cifras recibidas, sin inventar datos ni mencionar personas.";
+
+    private final com.cocacola.utils.ReadCache cache;
     private final EventRepository events;
     private final ParticipantRepository participants;
     private final InteractionRepository interactions;
@@ -120,6 +127,10 @@ public class InsightsService {
 
     @Transactional(readOnly = true)
     public AffinityReport affinity(String eventId, int limit) {
+        return cache.get("i:aff:" + eventId + ":" + limit, () -> computeAffinity(eventId, limit));
+    }
+
+    private AffinityReport computeAffinity(String eventId, int limit) {
         List<AffinityScore> all = profiles(eventId).stream().map(f -> {
             Scored s = score(f);
             return new AffinityScore(f.p().getId(), f.name(), f.p().getCity(), f.p().isConsent(), s.score(), level(s.score()), s.factors());
@@ -135,6 +146,10 @@ public class InsightsService {
 
     @Transactional(readOnly = true)
     public List<Segment> segments(String eventId) {
+        return cache.get("i:seg:" + eventId, () -> computeSegments(eventId));
+    }
+
+    private List<Segment> computeSegments(String eventId) {
         List<Profile> list = profiles(eventId);
         Map<String, List<Profile>> groups = new LinkedHashMap<>();
         for (String k : List.of("embajadores", "potenciales", "activos", "pasivos", "ausentes")) groups.put(k, new ArrayList<>());
@@ -170,6 +185,10 @@ public class InsightsService {
 
     @Transactional(readOnly = true)
     public List<AttendanceForecast> forecast() {
+        return cache.get("i:forecast", this::computeForecast);
+    }
+
+    private List<AttendanceForecast> computeForecast() {
         List<Event> all = events.findAll();
         List<Event> finished = all.stream().filter(e -> e.getStatus() == EventStatus.FINISHED).toList();
         List<Participant> everyone = participants.findAll();
@@ -235,6 +254,10 @@ public class InsightsService {
 
     @Transactional(readOnly = true)
     public List<Recommendation> recommendations(String eventId) {
+        return cache.get("i:recs:" + eventId, () -> computeRecommendations(eventId));
+    }
+
+    private List<Recommendation> computeRecommendations(String eventId) {
         if (eventId == null || eventId.isBlank()) return globalRecommendations();
         EventMetrics m = metrics.forEvent(eventId);
         List<Recommendation> r = new ArrayList<>();
@@ -333,6 +356,10 @@ public class InsightsService {
 
     @Transactional(readOnly = true)
     public InsightSummary summary(String eventId, boolean useAi) {
+        return cache.get("i:sum:" + eventId + ":" + useAi, () -> computeSummary(eventId, useAi));
+    }
+
+    private InsightSummary computeSummary(String eventId, boolean useAi) {
         boolean global = eventId == null || eventId.isBlank();
         List<Recommendation> recs = recommendations(global ? null : eventId);
         String title;
@@ -366,6 +393,39 @@ public class InsightsService {
             }
         }
         return new InsightSummary(global ? null : eventId, title, text, recs, aiText, source);
+    }
+
+    /** Interpretación de las predicciones (asistencia esperada y afinidad) con IA; sin IA, un texto armado con reglas. */
+    @Transactional(readOnly = true)
+    public PredictionAnalysis predictionAnalysis(String eventId) {
+        return cache.get("i:pred:" + eventId, () -> computePredictionAnalysis(eventId));
+    }
+
+    private PredictionAnalysis computePredictionAnalysis(String eventId) {
+        List<AttendanceForecast> forecasts = forecast().stream()
+                .filter(f -> eventId == null || eventId.isBlank() || f.eventId().equals(eventId)).toList();
+        AffinityReport affinity = affinity(eventId, 1);
+        StringBuilder data = new StringBuilder();
+        for (AttendanceForecast f : forecasts) {
+            data.append("Evento ").append(f.eventName()).append(": ");
+            if (f.expectedAttendees() == null) {
+                data.append(f.note()).append('\n');
+                continue;
+            }
+            data.append("asistentes esperados ").append(f.expectedAttendees()).append(" (rango ").append(f.low()).append(" a ").append(f.high())
+                    .append("), registrados ").append(f.registered()).append(", ya ingresaron ").append(f.attendedSoFar());
+            if (f.targetExpected() != null && f.targetExpected() > 0) data.append(", meta ").append(f.targetExpected());
+            if (f.historicalRate() != null) data.append(", asistencia histórica ").append(fmt(f.historicalRate())).append(" %");
+            if (f.projectedConversions() != null) data.append(", conversiones proyectadas ").append(f.projectedConversions());
+            data.append('\n');
+        }
+        data.append("Afinidad promedio para volver: ").append(fmt(affinity.averageScore())).append(" / 100. Distribución: ")
+                .append(affinity.distribution().stream().map(d -> d.name() + " " + (int) d.value()).collect(Collectors.joining(", "))).append('.');
+        if (ai.isConfigured()) {
+            Optional<String> generated = ai.generate(PREDICTION_PROMPT, data.toString());
+            if (generated.isPresent()) return new PredictionAnalysis(generated.get(), "ia");
+        }
+        return new PredictionAnalysis(data.toString().replace("\n", " "), "local");
     }
 
     public boolean aiConfigured() {

@@ -54,20 +54,27 @@ public class MetricsService {
     private final ProductRepository products;
     private final EventAccessService access;
     private final com.cocacola.persistence.crud.ExperienceRepository experiences;
+    private final com.cocacola.utils.ReadCache cache;
 
-    @Value("${app.timezone:America/Bogota}")
+    @Value("${app.timezone:America/La_Paz}")
     private String timezone;
 
     @Transactional(readOnly = true)
     public EventMetrics forEvent(String eventId) {
         access.require(eventId);
-        Event event = events.findById(eventId).orElseThrow(() -> new NotFoundException("Evento"));
-        return compute(event, participants.findByEventId(eventId), interactions.findByEventId(eventId),
-                surveys.findByEventId(eventId), activities.findByEventId(eventId), productNames(), productMap());
+        return cache.get("m:event:" + eventId, () -> {
+            Event event = events.findById(eventId).orElseThrow(() -> new NotFoundException("Evento"));
+            return compute(event, participants.findByEventId(eventId), interactions.findByEventId(eventId),
+                    surveys.findByEventId(eventId), activities.findByEventId(eventId), productNames(), productMap());
+        });
     }
 
     @Transactional(readOnly = true)
     public OverviewMetrics overview() {
+        return cache.get("m:overview", this::computeOverview);
+    }
+
+    private OverviewMetrics computeOverview() {
         var scope = access.assignedEventIds();
         List<Event> allEvents = events.findAll().stream().filter(e -> scope == null || scope.contains(e.getId())).toList();
         Set<String> visibleIds = allEvents.stream().map(Event::getId).collect(Collectors.toSet());

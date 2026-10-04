@@ -50,7 +50,7 @@ public class CommunicationService {
     @Value("${app.public-url:http://localhost:5173}")
     private String publicUrl;
 
-    @Value("${app.timezone:America/Bogota}")
+    @Value("${app.timezone:America/La_Paz}")
     private String timezone;
 
     public boolean emailConfigured() {

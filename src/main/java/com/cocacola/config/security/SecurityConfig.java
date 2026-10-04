@@ -56,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/participants").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         // Inteligencia y comunicaciones: datos de participantes, solo admin y marketing
-                        .requestMatchers("/communications/**", "/crm/**", "/integrations/**", "/insights/**").hasAnyRole("ADMIN", "MARKETING")
+                        .requestMatchers("/communications/**", "/crm/**", "/integrations/**", "/insights/**", "/chat/**").hasAnyRole("ADMIN", "MARKETING")
                         // Power BI: solo lectura (sesion admin/marketing o clave de API)
                         .requestMatchers("/bi", "/bi/**").hasAnyRole("ADMIN", "MARKETING", "BI")
                         // Administracion

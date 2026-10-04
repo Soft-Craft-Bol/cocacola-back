@@ -41,11 +41,13 @@ class ParticipantPerformanceTests {
         var result = events.findAll();
         assertEquals(30, result.size());
         assertEquals(58, result.stream().mapToInt(e -> e.getProductIds().size()).sum());
-        assertEquals(1, stats.getPrepareStatementCount());
+        result.forEach(e -> e.getExperienceIds().size());
+        // eventos + productos en una consulta y experiencias en una sola subselect, sin importar cuántos eventos haya
+        assertEquals(2, stats.getPrepareStatementCount());
         em.clear();
         stats.clear();
         assertEquals(2, events.findById("event-1").orElseThrow().getProductIds().size());
-        assertEquals(1, stats.getPrepareStatementCount());
+        assertEquals(2, stats.getPrepareStatementCount());
     }
 
     private void seed() {

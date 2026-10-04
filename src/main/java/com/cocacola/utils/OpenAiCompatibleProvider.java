@@ -50,7 +50,7 @@ public class OpenAiCompatibleProvider implements AiProvider {
         try {
             String body = json.writeValueAsString(Map.of(
                     "model", model,
-                    "max_tokens", 900,
+                    "max_tokens", 500,
                     "messages", List.of(Map.of("role", "system", "content", system), Map.of("role", "user", "content", prompt))));
             HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(baseUrl + "/chat/completions"))
                     .header("Content-Type", "application/json")
@@ -70,6 +70,10 @@ public class OpenAiCompatibleProvider implements AiProvider {
             return Optional.empty();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
+            return Optional.empty();
+        } catch (RuntimeException ex) {
+            // Cualquier otro fallo de red o de formato: la IA es opcional, la app sigue con el resumen automático
+            log.warn("Fallo inesperado al consultar a la IA ({}): {}", baseUrl, ex.getMessage());
             return Optional.empty();
         }
     }

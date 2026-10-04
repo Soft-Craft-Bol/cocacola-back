@@ -30,7 +30,7 @@ public class WhatsAppCloudGateway implements WhatsAppGateway {
 
     public WhatsAppCloudGateway(@Value("${whatsapp.token:}") String token,
                                 @Value("${whatsapp.phone-number-id:}") String phoneNumberId,
-                                @Value("${whatsapp.default-country-code:57}") String countryCode) {
+                                @Value("${whatsapp.default-country-code:591}") String countryCode) {
         this.token = token;
         this.phoneNumberId = phoneNumberId;
         this.countryCode = countryCode;
@@ -71,7 +71,8 @@ public class WhatsAppCloudGateway implements WhatsAppGateway {
     /** Solo dígitos; si el número tiene 10 dígitos se antepone el código de país por defecto. */
     String normalize(String phone) {
         String digits = phone.replaceAll("\\D", "");
-        return digits.length() == 10 ? countryCode + digits : digits;
+        // Celular boliviano de 8 dígitos (sin prefijo de país): se antepone 591
+        return digits.length() == 8 ? countryCode + digits : digits;
     }
 
     private HttpClient client() {

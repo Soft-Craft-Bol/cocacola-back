@@ -35,6 +35,9 @@ public final class Insights {
     public record Recommendation(String priority, String category, String title, String detail) {
     }
 
+    public record PredictionAnalysis(String text, String source) {
+    }
+
     public record InsightSummary(String eventId, String title, String text, List<Recommendation> recommendations,
                                  String ai, String aiSource) {
     }

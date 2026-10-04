@@ -99,7 +99,7 @@ public class BiExportService {
     private final com.cocacola.persistence.crud.ExperienceRepository experiences;
     private final MetricsService metrics;
 
-    @Value("${app.timezone:America/Bogota}")
+    @Value("${app.timezone:America/La_Paz}")
     private String timezone;
 
     public List<TableInfo> catalog() {

@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +48,14 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "app.seed.demo", havingValue = "true")
 public class DemoDataSeeder implements ApplicationRunner {
 
-    private static final List<String> NAMES = List.of("Camila", "Andrés", "Valentina", "Juan", "Sofía", "Santiago",
-            "Daniela", "Mateo", "Laura", "Sebastián", "Isabella", "Felipe", "Mariana", "Nicolás", "Paula", "David",
-            "Natalia", "Carlos", "Juliana", "Esteban");
-    private static final List<String> LAST_NAMES = List.of("Gómez", "Rodríguez", "Martínez", "López", "Hernández",
-            "García", "Pérez", "Ramírez", "Torres", "Vargas", "Castro", "Rojas", "Moreno", "Jiménez", "Ortiz");
-    private static final List<String> CITIES = List.of("Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Bucaramanga");
+    private static final List<String> NAMES = List.of("Camila", "Andrés", "Valentina", "Juan Carlos", "Sofía", "Rodrigo",
+            "Daniela", "Marcelo", "Lucía", "Sebastián", "Fernanda", "Gustavo", "Mariana", "Diego", "Paola", "Álvaro",
+            "Natalia", "Carlos", "Alejandra", "Esteban");
+    private static final List<String> LAST_NAMES = List.of("Mamani", "Quispe", "Rojas", "Flores", "Vargas", "Condori",
+            "Gutiérrez", "Choque", "Camacho", "Villarroel", "Antezana", "Arce", "Calizaya", "Rocabado", "Salazar");
+    // Cochabamba pesa más: es la sede de la operación; el resto son municipios del departamento y otras capitales
+    private static final List<String> CITIES = List.of("Cochabamba", "Cochabamba", "Cochabamba", "Cochabamba", "Quillacollo",
+            "Sacaba", "Tiquipaya", "Colcapirhua", "Vinto", "Santa Cruz de la Sierra", "La Paz", "Sucre");
     private static final List<String> AGES = List.of("18-24", "25-34", "35-44", "45-54", "55+");
     private static final List<String> SOURCES = List.of("Código QR", "Formulario web", "Tablet en sitio", "Aplicación móvil", "Preinscripción web");
 
@@ -65,13 +68,14 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final InteractionRepository interactions;
     private final SurveyRepository surveys;
 
-    @Value("${app.timezone:America/Bogota}")
+    @Value("${app.timezone:America/La_Paz}")
     private String timezone;
 
     @Override
     public void run(ApplicationArguments args) {
         if (!events.findAll().isEmpty()) {
             renameLegacyDemoNames();
+            localizeToBolivia();
             return;
         }
 
@@ -79,18 +83,18 @@ public class DemoDataSeeder implements ApplicationRunner {
         Instant now = Instant.now();
 
         List<Event> demoEvents = List.of(
-                event("e1", "Coca-Cola Experience 2026", "Festival o concierto", -60, "Parque Norte, Medellín",
+                event("e1", "Coca-Cola Experience 2026", "Festival o concierto", -60, "Parque Lincoln, Cochabamba",
                         "Oscar Organizador", "Ana Administradora", "Festival de música con zonas de degustación y cabina de fotos.",
-                        "Generar 100 registros con consentimiento", "Destapa la felicidad", 45_000_000L, 100,
+                        "Generar 100 registros con consentimiento", "Destapa la felicidad", 85_000L, 100,
                         "Producción propia", List.of("p1", "p2", "p3", "p5"), EventStatus.FINISHED),
-                event("e2", "Activación Deportiva Powerade", "Evento deportivo", -25, "Unidad Deportiva Belmonte, Medellín",
+                event("e2", "Activación Deportiva Powerade", "Evento deportivo", -25, "Estadio Félix Capriles, Cochabamba",
                         "Oscar Organizador", "Mónica Marketing", "Carrera 5K con estación de hidratación y entrega de muestras.",
-                        "Aumentar prueba de Powerade", "Verano Zero", 22_000_000L, 70, "Aliado deportivo",
+                        "Aumentar prueba de Powerade", "Verano Zero", 42_000L, 70, "Aliado deportivo",
                         List.of("p6", "p7", "p3"), EventStatus.FINISHED),
                 event("e3", "Muestras Sabores del Barrio", "Campaña promocional / punto de venta", 2,
-                        "Centro Comercial Paseo Aranjuez", "Oscar Organizador", "Mónica Marketing",
+                        "Av. Heroínas, Cochabamba", "Oscar Organizador", "Mónica Marketing",
                         "Activación en punto de venta con cupones de descuento.", "Canjear 40 cupones",
-                        "Sabores del barrio", 12_000_000L, 60, "Distribuidor", List.of("p1", "p4", "p5"), EventStatus.ACTIVE));
+                        "Sabores del barrio", 24_000L, 60, "Distribuidor", List.of("p1", "p4", "p5"), EventStatus.ACTIVE));
         Map<String, List<String>> eventExperiences = Map.of("e1", List.of("x1", "x2", "x3", "x4"),
                 "e2", List.of("x5", "x6", "x4"), "e3", List.of("x1", "x7", "x4"));
         demoEvents.forEach(e -> e.setExperienceIds(eventExperiences.get(e.getId())));
@@ -111,7 +115,7 @@ public class DemoDataSeeder implements ApplicationRunner {
             String first = pick(rnd, NAMES);
             String last = pick(rnd, LAST_NAMES);
             return new Person(first, last, plain(first + "." + last + i + "@mail.com").toLowerCase(),
-                    "3" + (100_000_000 + rnd.nextInt(899_999_999)), pick(rnd, CITIES), pick(rnd, AGES));
+                    "7" + (1_000_000 + rnd.nextInt(8_999_999)), pick(rnd, CITIES), pick(rnd, AGES));
         }).toList();
 
         List<Participant> allParticipants = new ArrayList<>();
@@ -201,6 +205,41 @@ public class DemoDataSeeder implements ApplicationRunner {
         linkLegacyExperiences();
         renameActivity("a8", "Mesa de sampling", "Mesa de muestras");
         renameActivity("a2", "Photocall Coca-Cola", "Cabina de fotos Coca-Cola");
+    }
+
+    /**
+     * Datos demo cargados con ciudades de Colombia: se pasan a Cochabamba y Bolivia (sedes, presupuesto en bolivianos,
+     * celulares de 8 dígitos, nombres y municipios). Cada persona conserva su identidad entre eventos (mismo correo nuevo).
+     */
+    private void localizeToBolivia() {
+        var first = events.findById("e1");
+        if (first.isEmpty() || first.get().getLocation() == null || first.get().getLocation().contains("Cochabamba")) return;
+        Map<String, String> venues = Map.of("e1", "Parque Lincoln, Cochabamba", "e2", "Estadio Félix Capriles, Cochabamba",
+                "e3", "Av. Heroínas, Cochabamba");
+        Map<String, Long> budgets = Map.of("e1", 85_000L, "e2", 42_000L, "e3", 24_000L);
+        venues.forEach((id, venue) -> events.findById(id).ifPresent(e -> {
+            e.setLocation(venue);
+            e.setBudget(budgets.get(id));
+            events.save(e);
+        }));
+        Random rnd = new Random(591);
+        Map<String, Person> identities = new HashMap<>();
+        List<Participant> demo = participants.findAll().stream().filter(p -> p.getId() != null && p.getId().startsWith("dp")).toList();
+        for (Participant p : demo) {
+            Person person = identities.computeIfAbsent(p.getEmail(), old -> {
+                String name = pick(rnd, NAMES);
+                String last = pick(rnd, LAST_NAMES);
+                return new Person(name, last, plain(name + "." + last + (identities.size() + 1) + "@mail.com").toLowerCase(),
+                        "7" + (1_000_000 + rnd.nextInt(8_999_999)), pick(rnd, CITIES), p.getAgeRange());
+            });
+            p.setFirstName(person.firstName());
+            p.setLastName(person.lastName());
+            p.setEmail(person.email());
+            p.setPhone(person.phone());
+            p.setCity(person.city());
+        }
+        participants.saveAll(demo);
+        log.info("Datos de demostración actualizados a Cochabamba, Bolivia ({} participantes)", demo.size());
     }
 
     /** Eventos y actividades demo cargados antes del catálogo de experiencias: se vinculan si aún no tienen ninguna. */
