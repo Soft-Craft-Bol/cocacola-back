@@ -7,6 +7,7 @@ import com.cocacola.domain.helpers.NotFoundException;
 import com.cocacola.domain.model.Event;
 import com.cocacola.domain.model.Participant;
 import com.cocacola.domain.repository.EventRepository;
+import com.cocacola.domain.repository.CouponRepository;
 import com.cocacola.domain.repository.InteractionRepository;
 import com.cocacola.domain.repository.ParticipantRepository;
 import com.cocacola.domain.repository.SurveyRepository;
@@ -25,6 +26,7 @@ public class ParticipantService {
     private final ParticipantRepository participants;
     private final EventRepository events;
     private final InteractionRepository interactions;
+    private final CouponRepository coupons;
     private final SurveyRepository surveys;
     private final NotificationService notifications;
     private final CommunicationService communications;
@@ -115,6 +117,7 @@ public class ParticipantService {
     @Transactional
     public void delete(String id) {
         interactions.deleteByParticipantId(id);
+        coupons.deleteByParticipantId(id);
         surveys.deleteByParticipantId(id);
         participants.deleteById(id);
     }

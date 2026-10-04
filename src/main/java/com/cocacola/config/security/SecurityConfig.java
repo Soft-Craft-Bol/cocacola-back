@@ -70,6 +70,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/activities", "/interactions", "/surveys",
                                 "/participants/*/checkin", "/participants/*/checkout").hasAnyRole("ADMIN", "ORGANIZER")
                         .requestMatchers(HttpMethod.DELETE, "/activities/*").hasAnyRole("ADMIN", "ORGANIZER")
+                        // Cupones: emitir y canjear en el evento; la lectura (marketing) la filtra el servicio por evento
+                        .requestMatchers(HttpMethod.POST, "/coupons", "/coupons/redeem").hasAnyRole("ADMIN", "ORGANIZER")
+                        .requestMatchers(HttpMethod.DELETE, "/coupons/*").hasAnyRole("ADMIN", "ORGANIZER")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(biApiKeyFilter, UsernamePasswordAuthenticationFilter.class);

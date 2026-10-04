@@ -8,6 +8,7 @@ import com.cocacola.domain.model.StoredImage;
 import com.cocacola.domain.repository.ImageStorage;
 import com.cocacola.domain.model.Event;
 import com.cocacola.domain.repository.ActivityRepository;
+import com.cocacola.domain.repository.CouponRepository;
 import com.cocacola.domain.repository.EventRepository;
 import com.cocacola.domain.repository.InteractionRepository;
 import com.cocacola.domain.repository.ParticipantRepository;
@@ -32,6 +33,7 @@ public class EventService {
 
     private final EventRepository events;
     private final ActivityRepository activities;
+    private final CouponRepository coupons;
     private final ParticipantRepository participants;
     private final InteractionRepository interactions;
     private final SurveyRepository surveys;
@@ -111,6 +113,7 @@ public class EventService {
         operations.deleteById(id);
         String imageId = events.findById(id).map(Event::getImagePublicId).orElse(null);
         interactions.deleteByEventId(id);
+        coupons.deleteByEventId(id);
         surveys.deleteByEventId(id);
         participants.deleteByEventId(id);
         activities.deleteByEventId(id);
